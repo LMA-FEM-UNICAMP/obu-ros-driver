@@ -1,12 +1,18 @@
 cmake_minimum_required(VERSION 3.0)
-project(ipc_socket_example)
+project(obu_ros_driver)
 
 find_package(Threads REQUIRED)
 
-add_executable(publisher src/publisher.c)
-target_link_libraries(publisher PRIVATE Threads::Threads -lrt)
-target_compile_options(publisher PRIVATE -g)
+include_directories(include)
 
-add_executable(subscriber src/subscriber.c)
-target_link_libraries(subscriber PRIVATE Threads::Threads -lrt)
-target_compile_options(subscriber PRIVATE -g)
+add_library(unix_socket_pub_sub
+    include/unix_socket_pub_sub/publisher.c
+    include/unix_socket_pub_sub/subscriber.c
+)
+
+add_executable(obu_ros_driver src/obu_ros_driver.c)
+
+target_link_libraries(obu_ros_driver PRIVATE unix_socket_pub_sub)
+
+target_link_libraries(obu_ros_driver PRIVATE Threads::Threads -lrt)
+target_compile_options(obu_ros_driver PRIVATE -g)

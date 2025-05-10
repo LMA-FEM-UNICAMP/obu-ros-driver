@@ -6,17 +6,8 @@ UNIX-Socket client
 
 */
 
-#include "ipc_socket.h"
+#include "unix_socket_pub_sub.h"
 
-// Creating typedef for function pointer
-typedef void (*subscriber_callback_t)(const socket_msg_t *msg);
-
-// Creating struct with args for thread
-typedef struct
-{
-    int sock_fd;
-    subscriber_callback_t callback;
-} subscriber_args_t;
 
 int configure_subscriber_socket(int *socket_fd, sockaddr_un_t *socket_addr)
 {
@@ -62,7 +53,7 @@ int configure_subscriber_socket(int *socket_fd, sockaddr_un_t *socket_addr)
 void *subscriber_thread(void *arg)
 {
     subscriber_args_t *args = (subscriber_args_t *)arg;
-    socket_msg_t buffer;
+    v2x_msgs__msg__CAM buffer;
 
     // Read server sockets when they arrive
     while (read(args->sock_fd, &buffer, sizeof(buffer)) > 0)
@@ -76,47 +67,7 @@ void *subscriber_thread(void *arg)
 
 
 // Defining callback
-void subscriber_callback(const socket_msg_t *msg)
+void subscriber_callback(const v2x_msgs__msg__CAM *msg)
 {
     printf("\nNew message from publisher\n");
-    printf("Server msg : %s\n", msg->msg);
-    printf("Server code: %d\n", msg->code);
-}
-
-
-
-int main()
-{
-    int sock_fd = 0;
-    sockaddr_un_t sock_addr;
-
-    if(configure_subscriber_socket(&sock_fd, &sock_addr) == -1){
-        return -1;
-    }
-
-    // Creating thread handler
-    pthread_t subscriber_thread_handler;
-
-    // Creating thread args
-    subscriber_args_t subscriber_thread_args = {.sock_fd = sock_fd, .callback = subscriber_callback};
-
-    // Creating and starting thread with args
-    if (pthread_create(&subscriber_thread_handler, NULL, subscriber_thread, &subscriber_thread_args) != 0)
-    {
-        perror("pthread_create");
-        exit(EXIT_FAILURE);
-    }
-
-    // Keep going on main...
-    for (int i = 0; i < 20; i++)
-    {
-        printf("[Main] doing some stuff\n");
-        sleep(1);
-    }
-
-    // Need to wait the thread ends before close the socket.
-    pthread_join(subscriber_thread_handler, NULL);
-
-    close(sock_fd);
-    return 0;
 }
