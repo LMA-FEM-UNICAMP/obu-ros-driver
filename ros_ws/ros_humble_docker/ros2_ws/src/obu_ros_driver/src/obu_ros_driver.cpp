@@ -4,23 +4,13 @@ namespace obu_ros_driver
 {
     ObuRosDriver::ObuRosDriver() : Node("obu_ros_driver")
     {
-
-        v2x_msgs::msg::CAM cam_cpp;
-        v2x_msgs__msg__CAM cam_c = V2xMsgConverter::cam__cpp_to_c(std::make_shared<v2x_msgs::msg::CAM>(cam_cpp));
-
-        timers_callback_group_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
-
-        msg_pub_ = this->create_publisher<std_msgs::msg::String>("/icp_msg", 1); 
-
-        using std::placeholders::_1;
-        sub_ = this->create_subscription<std_msgs::msg::UInt8>(
-            "/ipc_data", 10, std::bind(&ObuRosDriver::sub_callback, this, _1));
-
         i = 0;
 
-        pub_timer_ = this->create_wall_timer(std::chrono::milliseconds(500),
-                                             std::bind(&ObuRosDriver::pub_timer_callback, this),
-                                             timers_callback_group_);
+        cam_pub_ = this->create_publisher<v2x_msgs::msg::CAM>("/cam", 1);
+
+        using std::placeholders::_1;
+        cam_sub_ = this->create_subscription<v2x_msgs::msg::CAM>(
+            "/cam_to_obu", 10, std::bind(&ObuRosDriver::cam_sub_callback, this, _1));
     }
 
     ObuRosDriver::~ObuRosDriver()
@@ -35,22 +25,11 @@ namespace obu_ros_driver
         unlink(SOCKET_PATH_PUB);
     }
 
-    void ObuRosDriver::sub_callback(const std_msgs::msg::UInt8::SharedPtr msg)
-    {
-        i = msg->data;
-    }
-
     void ObuRosDriver::configure_socket()
     {
         create_unix_socket_sub(socket_sub_fd, socket_sub_addr, SOCKET_PATH_SUB);
 
         create_unix_socket_pub(socket_server_fd, socket_pub_fd, socket_pub_addr, SOCKET_PATH_PUB);
-    }
-
-    void ObuRosDriver::pub_timer_callback()
-    {
-        socket_msg_t msg = {.msg = "Hello ROS to OBU", .code = i};
-        publish_socket_pub(&msg, socket_pub_fd);
     }
 
     int ObuRosDriver::create_unix_socket_pub(int &socket_server_fd, int &socket_pub_fd, sockaddr_un_t &socket_addr, char *socket_path)
@@ -89,7 +68,7 @@ namespace obu_ros_driver
         }
 
         // Waiting subscriber connection
-        printf("[Publisher] Waiting for subscriber to connect...\n");
+        RCLCPP_INFO(this->get_logger(), "[UNIX-Socket [Publisher] Waiting for subscriber to connect..");
         if ((socket_pub_fd = accept(socket_server_fd, NULL, NULL)) == -1)
         {
             perror("accept failed");
@@ -117,8 +96,6 @@ namespace obu_ros_driver
         // Setting socket address path
         strncpy(socket_addr.sun_path, socket_path, strlen(socket_path));
 
-        printf("[Subscriber] Calling thread...\n");
-
         // Calling socket subscriber thread
         socket_sub_thread_handler = std::thread(&ObuRosDriver::socket_sub_thread, this, socket_fd, socket_addr);
 
@@ -127,14 +104,12 @@ namespace obu_ros_driver
 
     void ObuRosDriver::socket_sub_thread(int socket_fd, sockaddr_un_t socket_addr)
     {
-        printf("[Subscriber] Into in the thread...\n");
-
         // Connect to the socket server (publisher)
         while (connect(socket_fd, (struct sockaddr *)&socket_addr, sizeof(socket_addr)) == -1)
         {
             if (i < N_TRY_CONNECT_PUB)
             {
-                printf("Trying to reconnect...\n");
+                RCLCPP_WARN(this->get_logger(), "[UNIX-Socket Subscriber] Waiting publisher...\n");
                 i++;
                 sleep(1);
             }
@@ -147,36 +122,35 @@ namespace obu_ros_driver
 
         i = 0;
 
-        printf("[Subscriber] Publisher connected. Waiting messages...\n");
+        RCLCPP_INFO(this->get_logger(), "[UNIX-Socket Subscriber] Publisher connected. Waiting messages...");
 
-        socket_msg_t buffer;
+        v2x_msgs__msg__CAM buffer_cam_c;
 
         // Read server sockets when they arrive
-        while (read(socket_fd, &buffer, sizeof(buffer)) > 0)
+        while (read(socket_fd, &buffer_cam_c, sizeof(buffer_cam_c)) > 0)
         {
             // * Call callback function or execute code...
 
-            printf("\n[Subscriber] New message from publisher\n");
-            printf("Server msg : %s\n", buffer.msg);
-            printf("Server code: %d\n", buffer.code);
+            RCLCPP_INFO(this->get_logger(), "[UNIX-Socket Subscriber] New CAM from OBU");
 
-            std_msgs::msg::String msg;
-            sprintf(buffer.msg, "%s  | Code: %d", buffer.msg, buffer.code);
-            msg.data = std::string(buffer.msg);
-            // RCLCPP_INFO(this->get_logger(), "Publishing IPC message | %d", buffer.code);
-            // RCLCPP_INFO(this->get_logger(), buffer.msg);
-            msg_pub_->publish(msg);
+            v2x_msgs::msg::CAM cam_cpp = V2xMsgConverter::cam__c_to_cpp(&buffer_cam_c);
+
+            cam_pub_->publish(cam_cpp);
         }
 
         return;
     }
 
-    void ObuRosDriver::publish_socket_pub(socket_msg_t *msg, int socket_pub_fd)
+    void ObuRosDriver::publish_socket_pub(v2x_msgs__msg__CAM *msg, int socket_pub_fd)
     {
-        printf("\n[Publisher] Sending message from publisher\n");
-        printf("Server msg : %s\n", msg->msg);
-        printf("Server code: %d\n", msg->code);
+        RCLCPP_INFO(this->get_logger(), "[UNIX-Socket Sending CAM to OBU\n");
         write(socket_pub_fd, msg, sizeof(*msg));
+    }
+
+    void ObuRosDriver::cam_sub_callback(const v2x_msgs::msg::CAM::SharedPtr cam_from_ros)
+    {
+        v2x_msgs__msg__CAM msg = V2xMsgConverter::cam__cpp_to_c(cam_from_ros);
+        publish_socket_pub(&msg, socket_pub_fd);
     }
 
 } // namespace obu_ros_driver

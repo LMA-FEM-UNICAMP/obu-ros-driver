@@ -29,12 +29,6 @@
 
 #define N_TRY_CONNECT_PUB 300
 
-typedef struct socket_msg
-{
-    char msg[100];
-    int code;
-} socket_msg_t;
-
 typedef struct sockaddr_un sockaddr_un_t;
 
 // Creating struct with args for thread
@@ -65,29 +59,22 @@ namespace obu_ros_driver
         std::thread socket_sub_thread_handler;
         subscriber_args_t socket_sub_thread_args;
 
-        // V2X attributes
-
-        v2x_msgs::msg::CAM cam_msg_cpp;
-        v2x_msgs__msg__CAM cam_msg_c;
-
         int i;
 
-        rclcpp::CallbackGroup::SharedPtr timers_callback_group_;
+        
+        rclcpp::Publisher<v2x_msgs::msg::CAM>::SharedPtr cam_pub_;
+        rclcpp::Subscription<v2x_msgs::msg::CAM>::SharedPtr cam_sub_;
 
-        rclcpp::Publisher<std_msgs::msg::String>::SharedPtr msg_pub_;
-        rclcpp::TimerBase::SharedPtr pub_timer_;
-
-        rclcpp::Subscription<std_msgs::msg::UInt8>::SharedPtr sub_;
 
         void pub_timer_callback();
-        void sub_callback(const std_msgs::msg::UInt8::SharedPtr msg);
+        void cam_sub_callback(const v2x_msgs::msg::CAM::SharedPtr cam_from_ros);
 
         int create_unix_socket_sub(int &socket_fd, sockaddr_un_t &socket_addr, char *socket_path);
         int create_unix_socket_pub(int &socket_server_fd, int &socket_pub_fd, sockaddr_un_t &socket_addr, char *socket_path);
 
         void socket_sub_thread(int socket_fd, sockaddr_un_t socket_addr);
 
-        void publish_socket_pub(socket_msg_t *msg, int socket_pub_fd);
+        void publish_socket_pub(v2x_msgs__msg__CAM *cam_to_obu, int socket_pub_fd);
 
     };
 } // namespace obu_ros_driver
