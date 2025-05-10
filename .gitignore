@@ -94,3 +94,18 @@ CATKIN_IGNORE
 
 # clang-tidy output
 /clang-tidy-fixes.patch
+
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+CMakeUserPresets.json
+c_ws/libunix_socket_pub_sub.a
+c_ws/obu_ros_driver
