@@ -35,5 +35,8 @@ git clone git@github.com:LMA-FEM-UNICAMP/obu-ros-driver.git
 </div>
 ## V2X messages library
 
-Size of CAM message (`v2x_msgs__msg__CAM`): **752 bytes**.
+Size of CAM message (`v2x_msgs__msg__CAM` [1]): **752 bytes**.
 
+## References
+
+[1] ROS2 V2X Library: ROS2 library for ETSI V2X messages. Available at [github.com/virtual-vehicle/v2x_msgs](https://github.com/virtual-vehicle/v2x_msgs).
