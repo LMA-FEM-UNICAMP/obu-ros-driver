@@ -13,7 +13,7 @@
 Use `--recursive` to clone this repository.
 
 ```shell
-git clone git@github.com:LMA-FEM-UNICAMP/obu-ros-driver.git
+git clone --recursive git@github.com:LMA-FEM-UNICAMP/obu-ros-driver.git
 ```
 
 ## Package Details
