@@ -51,9 +51,10 @@ int main()
     pthread_join(subscriber_thread_handler, NULL);
 
     close(sock_fd_sub);
-
     close(server_socket_fd_pub);
     close(publisher_socket);
+
     unlink(SOCKET_PATH_PUB);
+    
     return 0;
 }
