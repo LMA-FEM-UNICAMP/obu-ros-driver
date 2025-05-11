@@ -33,6 +33,7 @@ git clone --recursive git@github.com:LMA-FEM-UNICAMP/obu-ros-driver.git
 ![alt](docs/figures/obu_ros_driver-pipeline.png)
 
 </div>
+
 ## V2X messages library
 
 Size of CAM message (`v2x_msgs__msg__CAM` [1]): **752 bytes**.
