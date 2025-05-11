@@ -37,6 +37,8 @@ ament_target_dependencies(
   "v2x_msgs"
 )
 
+install(TARGETS obu_ros_driver_node
+  DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
