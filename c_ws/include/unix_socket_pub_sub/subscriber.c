@@ -54,6 +54,7 @@ void *subscriber_thread(void *arg)
 {
     subscriber_args_t *args = (subscriber_args_t *)arg;
     v2x_msgs__msg__CAM buffer;
+    v2x_msgs__msg__CAM__init(&buffer);
 
     // Read server sockets when they arrive
     while (read(args->sock_fd, &buffer, sizeof(buffer)) > 0)
@@ -63,6 +64,7 @@ void *subscriber_thread(void *arg)
             args->callback(&buffer);
         }
     }
+    v2x_msgs__msg__CAM__fini(&buffer);
 }
 
 

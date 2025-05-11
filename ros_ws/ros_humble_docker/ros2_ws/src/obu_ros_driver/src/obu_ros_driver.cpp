@@ -125,6 +125,7 @@ namespace obu_ros_driver
         RCLCPP_INFO(this->get_logger(), "[UNIX-Socket Subscriber] Publisher connected. Waiting messages...");
 
         v2x_msgs__msg__CAM buffer_cam_c;
+        v2x_msgs__msg__CAM__init(&buffer_cam_c);
 
         // Read server sockets when they arrive
         while (read(socket_fd, &buffer_cam_c, sizeof(buffer_cam_c)) > 0)
@@ -133,10 +134,13 @@ namespace obu_ros_driver
 
             RCLCPP_INFO(this->get_logger(), "[UNIX-Socket Subscriber] New CAM from OBU");
 
-            v2x_msgs::msg::CAM cam_cpp = V2xMsgConverter::cam__c_to_cpp(&buffer_cam_c);
+            v2x_msgs::msg::CAM cam_cpp;
+            V2xMsgConverter::cam__c_to_cpp(&buffer_cam_c, &cam_cpp);
 
             cam_pub_->publish(cam_cpp);
         }
+
+        v2x_msgs__msg__CAM__fini(&buffer_cam_c);
 
         return;
     }
@@ -149,8 +153,14 @@ namespace obu_ros_driver
 
     void ObuRosDriver::cam_sub_callback(const v2x_msgs::msg::CAM::SharedPtr cam_from_ros)
     {
-        v2x_msgs__msg__CAM msg = V2xMsgConverter::cam__cpp_to_c(cam_from_ros);
+        v2x_msgs__msg__CAM msg;
+        v2x_msgs__msg__CAM__init(&msg);
+
+        V2xMsgConverter::cam__cpp_to_c(cam_from_ros, &msg);
+
         publish_socket_pub(&msg, socket_pub_fd);
+
+        v2x_msgs__msg__CAM__fini(&msg);
     }
 
 } // namespace obu_ros_driver

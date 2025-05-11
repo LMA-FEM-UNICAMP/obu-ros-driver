@@ -21,6 +21,7 @@ int main()
     }
 
     v2x_msgs__msg__CAM cam_to_ros;
+    v2x_msgs__msg__CAM__init(&cam_to_ros);
 
     // Creating thread handler
     pthread_t subscriber_thread_handler;
@@ -43,6 +44,8 @@ int main()
 
         sleep(2);
     }
+
+    v2x_msgs__msg__CAM__fini(&cam_to_ros);
 
     // Need to wait the thread ends before close the socket.
     pthread_join(subscriber_thread_handler, NULL);
