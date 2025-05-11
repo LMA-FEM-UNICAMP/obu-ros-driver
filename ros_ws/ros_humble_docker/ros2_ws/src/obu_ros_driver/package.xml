@@ -3,8 +3,8 @@
 <package format="3">
   <name>obu_ros_driver</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="gabrieltoffanetto@gmail.com">toffanetto</maintainer>
+  <description>ROS2 Driver to send and receive C-V2X though On-Board Units (OBU) using UNIX-Socket embedded in the OBU using Docker.</description>
+  <maintainer email="gabriel.rocha@ieee.org">toffanetto</maintainer>
   <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>

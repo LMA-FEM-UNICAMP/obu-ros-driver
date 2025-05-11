@@ -2,35 +2,65 @@
 
 namespace obu_ros_driver
 {
+    /**
+     * @brief Construct a new Obu Ros Driver:: Obu Ros Driver object
+     *
+     */
     ObuRosDriver::ObuRosDriver() : Node("obu_ros_driver")
     {
-        cam_pub_ = this->create_publisher<v2x_msgs::msg::CAM>("/cam", 1);
-
         using std::placeholders::_1;
+
+        this->declare_parameter("socket_path_sub", "/tmp/socket_obu2ros");
+        this->declare_parameter("socket_path_pub", "/tmp/socket_ros2obu");
+        this->declare_parameter("n_try_connect_pub", 300);
+
+        socket_path_sub_ = this->get_parameter("socket_path_sub").as_string();
+        socket_path_pub_ = this->get_parameter("socket_path_pub").as_string();
+        n_try_connect_pub_ = this->get_parameter("n_try_connect_pub").as_int();
+
+        cam_pub_ = this->create_publisher<v2x_msgs::msg::CAM>("/cam_from_obu", 1);
+
         cam_sub_ = this->create_subscription<v2x_msgs::msg::CAM>(
             "/cam_to_obu", 10, std::bind(&ObuRosDriver::cam_sub_callback, this, _1));
     }
 
+    /**
+     * @brief Destroy the Obu Ros Driver:: Obu Ros Driver object
+     *
+     */
     ObuRosDriver::~ObuRosDriver()
     {
         if (socket_sub_thread_handler.joinable())
         {
             socket_sub_thread_handler.join(); // Ensure thread cleanup
         }
-        close(socket_server_fd);
-        close(socket_pub_fd);
-        close(socket_sub_fd);
-        unlink(SOCKET_PATH_PUB);
+        close(socket_server_fd_);
+        close(socket_pub_fd_);
+        close(socket_sub_fd_);
+        unlink(socket_path_pub_.c_str());
     }
 
+    /**
+     * @brief
+     *
+     */
     void ObuRosDriver::configure_socket()
     {
-        create_unix_socket_sub(socket_sub_fd, socket_sub_addr, SOCKET_PATH_SUB);
+        create_unix_socket_sub(socket_sub_fd_, socket_sub_addr_, socket_path_sub_.c_str());
 
-        create_unix_socket_pub(socket_server_fd, socket_pub_fd, socket_pub_addr, SOCKET_PATH_PUB);
+        create_unix_socket_pub(socket_server_fd_, socket_pub_fd_, socket_pub_addr_, socket_path_pub_.c_str());
     }
 
-    int ObuRosDriver::create_unix_socket_pub(int &socket_server_fd, int &socket_pub_fd, sockaddr_un_t &socket_addr, char *socket_path)
+    /**
+     * @brief
+     *
+     * @param socket_server_fd
+     * @param socket_pub_fd
+     * @param socket_addr
+     * @param socket_path
+     * @return int
+     */
+    int ObuRosDriver::create_unix_socket_pub(int &socket_server_fd, int &socket_pub_fd, sockaddr_un_t &socket_addr, const char *socket_path)
     {
         // Create socket
         if ((socket_server_fd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1)
@@ -76,7 +106,15 @@ namespace obu_ros_driver
         return 1;
     }
 
-    int ObuRosDriver::create_unix_socket_sub(int &socket_fd, sockaddr_un_t &socket_addr, char *socket_path)
+    /**
+     * @brief
+     *
+     * @param socket_fd
+     * @param socket_addr
+     * @param socket_path
+     * @return int
+     */
+    int ObuRosDriver::create_unix_socket_sub(int &socket_fd, sockaddr_un_t &socket_addr, const char *socket_path)
     {
         // Create socket
         if ((socket_fd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1)
@@ -100,6 +138,12 @@ namespace obu_ros_driver
         return 1;
     }
 
+    /**
+     * @brief
+     *
+     * @param socket_fd
+     * @param socket_addr
+     */
     void ObuRosDriver::socket_sub_thread(int socket_fd, sockaddr_un_t socket_addr)
     {
         // Connect to the socket server (publisher)
@@ -107,7 +151,7 @@ namespace obu_ros_driver
         {
             int i = 0;
 
-            if (i < N_TRY_CONNECT_PUB)
+            if (i < n_try_connect_pub_)
             {
                 RCLCPP_WARN(this->get_logger(), "[UNIX-Socket Subscriber] Waiting publisher...\n");
                 i++;
@@ -143,12 +187,23 @@ namespace obu_ros_driver
         return;
     }
 
+    /**
+     * @brief
+     *
+     * @param msg
+     * @param socket_pub_fd
+     */
     void ObuRosDriver::publish_socket_pub(v2x_msgs__msg__CAM *msg, int socket_pub_fd)
     {
         RCLCPP_INFO(this->get_logger(), "[UNIX-Socket Sending CAM to OBU\n");
         write(socket_pub_fd, msg, sizeof(*msg));
     }
 
+    /**
+     * @brief
+     *
+     * @param cam_from_ros
+     */
     void ObuRosDriver::cam_sub_callback(const v2x_msgs::msg::CAM::SharedPtr cam_from_ros)
     {
         v2x_msgs__msg__CAM msg;
@@ -156,7 +211,7 @@ namespace obu_ros_driver
 
         V2xMsgConverter::cam__cpp_to_c(cam_from_ros, &msg);
 
-        publish_socket_pub(&msg, socket_pub_fd);
+        publish_socket_pub(&msg, socket_pub_fd_);
 
         v2x_msgs__msg__CAM__fini(&msg);
     }

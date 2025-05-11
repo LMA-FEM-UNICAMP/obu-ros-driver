@@ -1,9 +1,17 @@
 #include "v2x_msg_converter/v2x_msg_converter.hpp"
 
+/**
+ * @brief Construct a new V2xMsgConverter::V2xMsgConverter object
+ * 
+ */
 V2xMsgConverter::V2xMsgConverter()
 {
 }
 
+/**
+ * @brief Destroy the V2xMsgConverter::V2xMsgConverter object
+ * 
+ */
 V2xMsgConverter::~V2xMsgConverter()
 {
 }
@@ -12,6 +20,12 @@ V2xMsgConverter::~V2xMsgConverter()
 
 /* ItsPduHeader */
 
+/**
+ * @brief 
+ * 
+ * @param its_pdu_header_c 
+ * @param its_pdu_header_cpp 
+ */
 void V2xMsgConverter::its_pdu_header_c_to_cpp(const v2x_msgs__msg__ItsPduHeader *its_pdu_header_c, v2x_msgs::msg::ItsPduHeader *its_pdu_header_cpp)
 {
     its_pdu_header_cpp->message_id = its_pdu_header_c->message_id;
@@ -19,6 +33,12 @@ void V2xMsgConverter::its_pdu_header_c_to_cpp(const v2x_msgs__msg__ItsPduHeader 
     its_pdu_header_cpp->protocol_version = its_pdu_header_c->protocol_version;
 }
 
+/**
+ * @brief 
+ * 
+ * @param its_pdu_header_cpp 
+ * @param its_pdu_header_c 
+ */
 void V2xMsgConverter::its_pdu_header_cpp_to_c(const v2x_msgs::msg::ItsPduHeader::SharedPtr its_pdu_header_cpp, v2x_msgs__msg__ItsPduHeader *its_pdu_header_c)
 {
     its_pdu_header_c->message_id = its_pdu_header_cpp->message_id;
@@ -28,6 +48,12 @@ void V2xMsgConverter::its_pdu_header_cpp_to_c(const v2x_msgs::msg::ItsPduHeader:
 
 /* CAM */
 
+/**
+ * @brief 
+ * 
+ * @param cam_c 
+ * @param cam_cpp 
+ */
 void V2xMsgConverter::cam__c_to_cpp(const v2x_msgs__msg__CAM *cam_c, v2x_msgs::msg::CAM *cam_cpp)
 {
 
@@ -362,6 +388,12 @@ void V2xMsgConverter::cam__c_to_cpp(const v2x_msgs__msg__CAM *cam_c, v2x_msgs::m
         cam_c->cam.cam_parameters.special_vehicle_container.safety_car_container.speed_limit.speed_limit;
 }
 
+/**
+ * @brief 
+ * 
+ * @param cam_cpp 
+ * @param cam_c 
+ */
 void V2xMsgConverter::cam__cpp_to_c(const v2x_msgs::msg::CAM::SharedPtr cam_cpp, v2x_msgs__msg__CAM *cam_c)
 {
     // Header
