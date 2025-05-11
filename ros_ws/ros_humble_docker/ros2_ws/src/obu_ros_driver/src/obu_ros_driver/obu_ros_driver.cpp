@@ -4,8 +4,6 @@ namespace obu_ros_driver
 {
     ObuRosDriver::ObuRosDriver() : Node("obu_ros_driver")
     {
-        i = 0;
-
         cam_pub_ = this->create_publisher<v2x_msgs::msg::CAM>("/cam", 1);
 
         using std::placeholders::_1;
@@ -107,6 +105,8 @@ namespace obu_ros_driver
         // Connect to the socket server (publisher)
         while (connect(socket_fd, (struct sockaddr *)&socket_addr, sizeof(socket_addr)) == -1)
         {
+            int i = 0;
+
             if (i < N_TRY_CONNECT_PUB)
             {
                 RCLCPP_WARN(this->get_logger(), "[UNIX-Socket Subscriber] Waiting publisher...\n");
@@ -119,8 +119,6 @@ namespace obu_ros_driver
                 return;
             }
         }
-
-        i = 0;
 
         RCLCPP_INFO(this->get_logger(), "[UNIX-Socket Subscriber] Publisher connected. Waiting messages...");
 

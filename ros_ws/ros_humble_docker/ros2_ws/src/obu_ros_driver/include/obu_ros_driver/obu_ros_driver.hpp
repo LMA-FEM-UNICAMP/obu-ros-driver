@@ -48,6 +48,7 @@ namespace obu_ros_driver
         void configure_socket();
 
     private:
+
         // UNIX-Socket attributes
         int socket_server_fd;
         int socket_pub_fd;
@@ -58,9 +59,8 @@ namespace obu_ros_driver
 
         std::thread socket_sub_thread_handler;
         subscriber_args_t socket_sub_thread_args;
-
-        int i;
-
+    
+        // ROS2
         
         rclcpp::Publisher<v2x_msgs::msg::CAM>::SharedPtr cam_pub_;
         rclcpp::Subscription<v2x_msgs::msg::CAM>::SharedPtr cam_sub_;

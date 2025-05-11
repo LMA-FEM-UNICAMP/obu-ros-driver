@@ -14,12 +14,12 @@ find_package(v2x_msgs REQUIRED)
 include_directories(include)
 
 add_library(v2x_msg_converter
-  include/v2x_msg_converter/v2x_msg_converter.cpp
+  src/v2x_msg_converter/v2x_msg_converter.cpp
 )
 
 ament_target_dependencies(v2x_msg_converter "v2x_msgs")
 
-add_executable(obu_ros_driver_node src/obu_ros_driver.cpp src/obu_ros_driver_node.cpp)
+add_executable(obu_ros_driver_node src/obu_ros_driver/obu_ros_driver.cpp src/obu_ros_driver_node.cpp)
 
 
 target_include_directories(obu_ros_driver_node PUBLIC
