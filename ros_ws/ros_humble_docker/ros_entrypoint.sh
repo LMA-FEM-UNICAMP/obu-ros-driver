@@ -7,4 +7,4 @@ export ROS_DOMAIN_ID=5
 source "/opt/ros/$ROS_DISTRO/setup.bash"
 source "/ros2_ws/install/setup.bash"
 
-ros2 run ipc_example ipc_node
+ros2 run obu_ros_driver obu_ros_driver_node
