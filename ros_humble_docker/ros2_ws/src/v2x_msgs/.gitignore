@@ -1,0 +1,68 @@
+### ### General Stuff ### ###
+
+# v2x asn1 specifications
+vehicle_captain_its_asn1_specifications/
+
+# GNU global tags
+GTAGS
+GRTAGS
+GSYMS
+GPATH
+
+# Python byte-compile file
+__pycache__/
+*.py[co]
+
+# editor backup files
+*~
+\#*\#
+
+# backup files
+*.bak
+
+# Eclipse
+.cproject
+.project
+.pydevproject
+.settings/
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# CLion
+.idea/
+cmake-build-debug/
+
+# ROSBag files
+*.bag
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Autoware Resources
+*.pcd
+*.bag
+*.csv
+
+/.metadata/
+
+# colcon
+build/
+install/
+log/
+
+# catkin
+build/
+devel/
+install/
+logs/
+.catkin_tools/
+
+# bloom generate ignores
+/.obj-x86_64-linux-gnu/
+/debian/
