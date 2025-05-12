@@ -5,7 +5,7 @@ find_package(Threads REQUIRED)
 
 include_directories(include)
 
-file(GLOB SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/include/v2x_msgs/v2x_msgs/msg/detail/*.c" "${CMAKE_CURRENT_SOURCE_DIR}/include/v2x_msgs/rosidl_runtime_c/*.c" ${CMAKE_CURRENT_SOURCE_DIR}/include/rcutils/allocator.c )
+file(GLOB SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/include/v2x_msgs/v2x_msgs/msg/detail/*.c" "${CMAKE_CURRENT_SOURCE_DIR}/include/v2x_msgs/rosidl_runtime_c/*.c" ${CMAKE_CURRENT_SOURCE_DIR}/include/v2x_msgs/rcutils/allocator.c )
 
 add_library(v2x_msgs_aux_lib ${SRC_FILES})
 
