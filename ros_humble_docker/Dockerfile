@@ -11,7 +11,7 @@ COPY ros2_ws/src src/
 
 RUN mkdir install
 
-ADD ros2_ws/v2x_msgs_arm64.tar.gz install
+ADD ros2_ws/lib/v2x_msgs_arm64.tar.gz install
 
 # Build package
 RUN . "/opt/ros/$ROS_DISTRO/setup.sh" && \
