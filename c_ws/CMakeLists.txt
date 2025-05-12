@@ -12,12 +12,12 @@ file(
     )
 
 add_library(
-    v2x_msgs_aux_lib 
+    v2x_msgs 
     ${SRC_FILES}
     )
 
 target_include_directories(
-    v2x_msgs_aux_lib PUBLIC 
+    v2x_msgs PUBLIC 
     ${CMAKE_CURRENT_SOURCE_DIR}/include/v2x_msgs
     )
 
@@ -38,7 +38,7 @@ target_include_directories(obu_ros_driver PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/inc
 
 # Adding unix_socket_pub_sub library
 target_link_libraries(obu_ros_driver PRIVATE unix_socket_pub_sub)
-target_link_libraries(obu_ros_driver PRIVATE v2x_msgs_aux_lib )
+target_link_libraries(obu_ros_driver PRIVATE v2x_msgs )
 
 # Enabling multithread
 target_link_libraries(obu_ros_driver PRIVATE Threads::Threads -lrt)
