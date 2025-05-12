@@ -5,20 +5,34 @@ find_package(Threads REQUIRED)
 
 include_directories(include)
 
-file(GLOB SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/include/v2x_msgs/v2x_msgs/msg/detail/*.c" "${CMAKE_CURRENT_SOURCE_DIR}/include/v2x_msgs/rosidl_runtime_c/*.c" ${CMAKE_CURRENT_SOURCE_DIR}/include/v2x_msgs/rcutils/allocator.c )
+file(
+    GLOB SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/include/v2x_msgs/v2x_msgs/msg/detail/*.c" 
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/v2x_msgs/rosidl_runtime_c/*.c" 
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/v2x_msgs/rcutils/allocator.c 
+    )
 
-add_library(v2x_msgs_aux_lib ${SRC_FILES})
+add_library(
+    v2x_msgs_aux_lib 
+    ${SRC_FILES}
+    )
 
-target_include_directories(v2x_msgs_aux_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/v2x_msgs)
+target_include_directories(
+    v2x_msgs_aux_lib PUBLIC 
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/v2x_msgs
+    )
 
-add_library(unix_socket_pub_sub
+add_library(
+    unix_socket_pub_sub
     include/unix_socket_pub_sub/unix_socket_publisher.c
     include/unix_socket_pub_sub/unix_socket_subscriber.c
-)
+    )
 
 target_include_directories(unix_socket_pub_sub PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/v2x_msgs)
 
-add_executable(obu_ros_driver src/obu_ros_driver.c)
+add_executable(
+    obu_ros_driver 
+    src/obu_ros_driver.c
+    )
 
 target_include_directories(obu_ros_driver PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/v2x_msgs)
 
