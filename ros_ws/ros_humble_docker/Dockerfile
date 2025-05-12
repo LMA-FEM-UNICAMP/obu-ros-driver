@@ -21,4 +21,8 @@ RUN rm -rf build/ log/ src/ && apt remove ros-dev-tools -y && rm -rf /var/cache/
 # Setup entrypoint
 COPY --chmod=755 ./ros_entrypoint.sh /
 
+RUN useradd -ms /bin/bash toffanetto
+
+USER toffanetto
+
 ENTRYPOINT ["/ros_entrypoint.sh"]
