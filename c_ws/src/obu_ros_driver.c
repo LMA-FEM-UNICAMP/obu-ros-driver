@@ -45,7 +45,11 @@ int main()
         return -1;
     }
 
+    // Creating CAM message
     v2x_msgs__msg__CAM cam_to_ros;
+
+    // Initializing CAM message
+    memset(&cam_to_ros, 0, sizeof(cam_to_ros));
     v2x_msgs__msg__CAM__init(&cam_to_ros);
 
     // Creating thread handler
@@ -64,7 +68,7 @@ int main()
     // Publishing
     for (int i = 0; i < 255; i++)
     {
-        
+        cam_to_ros.header.message_id = i;
         publish_socket(publisher_socket, &cam_to_ros, sizeof(cam_to_ros));
 
         sleep(2);
@@ -80,6 +84,6 @@ int main()
     close(publisher_socket);
 
     unlink(SOCKET_PATH_PUB);
-    
+
     return 0;
 }

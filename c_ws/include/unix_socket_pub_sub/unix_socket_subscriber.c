@@ -110,4 +110,5 @@ void *subscriber_thread(void *arg)
 void subscriber_callback(const v2x_msgs__msg__CAM *msg)
 {
     printf("\nNew message from publisher\n");
+    printf("\nMessage ID: %ld\n", msg->header.message_id);
 }

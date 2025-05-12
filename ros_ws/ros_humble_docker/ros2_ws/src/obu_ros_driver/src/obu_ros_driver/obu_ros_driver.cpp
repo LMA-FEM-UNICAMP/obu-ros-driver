@@ -179,7 +179,21 @@ namespace obu_ros_driver
             v2x_msgs::msg::CAM cam_cpp;
             V2xMsgConverter::cam__c_to_cpp(&buffer_cam_c, &cam_cpp);
 
+            RCLCPP_INFO(this->get_logger(), "Message id: %d", cam_cpp.header.message_id);
+
             cam_pub_->publish(cam_cpp);
+
+            // ! DEBUG
+            {
+                v2x_msgs__msg__CAM msg;
+                v2x_msgs__msg__CAM__init(&msg);
+
+                V2xMsgConverter::cam__cpp_to_c(std::make_shared<v2x_msgs::msg::CAM>(cam_cpp), &msg);
+
+                publish_socket_pub(&msg, socket_pub_fd_);
+
+                v2x_msgs__msg__CAM__fini(&msg);
+            }
         }
 
         v2x_msgs__msg__CAM__fini(&buffer_cam_c);
