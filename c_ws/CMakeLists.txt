@@ -1,17 +1,15 @@
 cmake_minimum_required(VERSION 3.0)
 project(obu_ros_driver)
 
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
-    set(V2X_MSGS_PATH "amd64")
-elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
-    set(V2X_MSGS_PATH "arm64")
-else()
-    message(FATAL_ERROR "Unsupported architecture: ${CMAKE_SYSTEM_PROCESSOR}")
-endif()
-
 find_package(Threads REQUIRED)
 
 include_directories(include)
+
+file(GLOB SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/include/v2x_msgs/msg/detail/*.c" "${CMAKE_CURRENT_SOURCE_DIR}/include/rosidl_runtime_c/*.c" ${CMAKE_CURRENT_SOURCE_DIR}/include/rcutils/allocator.c )
+
+add_library(v2x_msgs_aux_lib ${SRC_FILES})
+
+target_include_directories(v2x_msgs_aux_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 add_library(unix_socket_pub_sub
     include/unix_socket_pub_sub/unix_socket_publisher.c
@@ -22,11 +20,7 @@ add_executable(obu_ros_driver src/obu_ros_driver.c)
 
 # Adding unix_socket_pub_sub library
 target_link_libraries(obu_ros_driver PRIVATE unix_socket_pub_sub)
-
-# Adding ROS2 V2X compiled messages and auxiliary functions
-target_link_libraries(obu_ros_driver PRIVATE ${CMAKE_SOURCE_DIR}/lib/${V2X_MSGS_PATH}/libv2x_msgs__rosidl_generator_c.so)
-target_link_libraries(obu_ros_driver PRIVATE ${CMAKE_SOURCE_DIR}/lib/${V2X_MSGS_PATH}/libv2x_msgs__rosidl_typesupport_c.so)
-target_link_libraries(obu_ros_driver PRIVATE ${CMAKE_SOURCE_DIR}/lib/${V2X_MSGS_PATH}/libv2x_msgs__rosidl_typesupport_introspection_c.so)
+target_link_libraries(obu_ros_driver PRIVATE v2x_msgs_aux_lib )
 
 # Enabling multithread
 target_link_libraries(obu_ros_driver PRIVATE Threads::Threads -lrt)
