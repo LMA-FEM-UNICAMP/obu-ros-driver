@@ -1,0 +1,12 @@
+// generated from rosidl_generator_c/resource/idl.h.em
+// with input from v2x_msgs:msg/RoadLaneSetList.idl
+// generated code does not contain a copyright notice
+
+#ifndef V2X_MSGS__MSG__ROAD_LANE_SET_LIST_H_
+#define V2X_MSGS__MSG__ROAD_LANE_SET_LIST_H_
+
+#include "v2x_msgs/msg/detail/road_lane_set_list__struct.h"
+#include "v2x_msgs/msg/detail/road_lane_set_list__functions.h"
+#include "v2x_msgs/msg/detail/road_lane_set_list__type_support.h"
+
+#endif  // V2X_MSGS__MSG__ROAD_LANE_SET_LIST_H_
