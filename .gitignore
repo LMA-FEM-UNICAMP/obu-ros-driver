@@ -108,3 +108,4 @@ _deps
 CMakeUserPresets.json
 c_ws/libunix_socket_pub_sub.a
 c_ws/obu_ros_driver
+*.a
