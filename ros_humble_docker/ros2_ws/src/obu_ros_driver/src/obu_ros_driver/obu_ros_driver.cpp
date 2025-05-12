@@ -153,7 +153,7 @@ namespace obu_ros_driver
 
             if (i < n_try_connect_pub_)
             {
-                RCLCPP_WARN(this->get_logger(), "[UNIX-Socket Subscriber] Waiting publisher...\n");
+                RCLCPP_WARN(this->get_logger(), "[UNIX-Socket Subscriber] Waiting publisher...");
                 i++;
                 sleep(1);
             }
@@ -179,7 +179,7 @@ namespace obu_ros_driver
             v2x_msgs::msg::CAM cam_cpp;
             V2xMsgConverter::cam__c_to_cpp(&buffer_cam_c, &cam_cpp);
 
-            RCLCPP_INFO(this->get_logger(), "Message id: %d", cam_cpp.header.message_id);
+            RCLCPP_INFO(this->get_logger(), "[UNIX-Socket Subscriber] Message id: %d", cam_cpp.header.message_id);
 
             cam_pub_->publish(cam_cpp);
 
@@ -209,7 +209,7 @@ namespace obu_ros_driver
      */
     void ObuRosDriver::publish_socket_pub(v2x_msgs__msg__CAM *msg, int socket_pub_fd)
     {
-        RCLCPP_INFO(this->get_logger(), "[UNIX-Socket Sending CAM to OBU\n");
+        RCLCPP_INFO(this->get_logger(), "[UNIX-Socket Publisher] Sending CAM to OBU");
         write(socket_pub_fd, msg, sizeof(*msg));
     }
 
