@@ -11,6 +11,7 @@ COPY ros2_ws/src src/
 
 RUN mkdir install
 
+# Adding v2x_msgs compiled ROS2 package to save compilation time
 ADD ros2_ws/lib/v2x_msgs_arm64.tar.gz install
 
 # Build package
@@ -25,8 +26,10 @@ RUN rm -rf build/ log/ src/ && apt remove ros-dev-tools -y && rm -rf /var/cache/
 # Setup entrypoint
 COPY --chmod=755 ./ros_entrypoint.sh /
 
+# Adding common user
 RUN useradd -ms /bin/bash toffanetto
 
+# Changing from root to user
 USER toffanetto
 
 ENTRYPOINT ["/ros_entrypoint.sh"]
