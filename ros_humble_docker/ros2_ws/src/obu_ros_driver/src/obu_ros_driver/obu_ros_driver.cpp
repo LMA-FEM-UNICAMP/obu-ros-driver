@@ -169,34 +169,53 @@ namespace obu_ros_driver
         v2x_msgs__msg__CAM buffer_cam_c;
         v2x_msgs__msg__CAM__init(&buffer_cam_c);
 
+        int i = 0;
+
+        rclcpp::Time init = this->get_clock()->now();
+        rclcpp::Time fini = this->get_clock()->now();
+
         // Read server sockets when they arrive
         while (read(socket_fd, &buffer_cam_c, sizeof(buffer_cam_c)) > 0)
         {
             // * Call callback function or execute code...
 
-            RCLCPP_INFO(this->get_logger(), "[UNIX-Socket Subscriber] New CAM from OBU");
+            // RCLCPP_INFO(this->get_logger(), "[UNIX-Socket Subscriber] New CAM from OBU");
 
             v2x_msgs::msg::CAM cam_cpp;
             V2xMsgConverter::cam__c_to_cpp(&buffer_cam_c, &cam_cpp);
 
-            RCLCPP_INFO(this->get_logger(), "[UNIX-Socket Subscriber] Message id: %d", cam_cpp.header.message_id);
+            // RCLCPP_INFO(this->get_logger(), "[UNIX-Socket Subscriber] Message id: %d", cam_cpp.header.message_id);
+
+            if (0 == i){
+                init = this->get_clock()->now();
+            }
+
+            if (999 == i){
+                fini = this->get_clock()->now();
+                break;
+            }
+
+            i++;
 
             cam_pub_->publish(cam_cpp);
 
             // ! DEBUG
-            {
-                v2x_msgs__msg__CAM msg;
-                v2x_msgs__msg__CAM__init(&msg);
+            // {
+            //     v2x_msgs__msg__CAM msg;
+            //     v2x_msgs__msg__CAM__init(&msg);
 
-                V2xMsgConverter::cam__cpp_to_c(std::make_shared<v2x_msgs::msg::CAM>(cam_cpp), &msg);
+            //     V2xMsgConverter::cam__cpp_to_c(std::make_shared<v2x_msgs::msg::CAM>(cam_cpp), &msg);
 
-                publish_socket_pub(&msg, socket_pub_fd_);
+            //     publish_socket_pub(&msg, socket_pub_fd_);
 
-                v2x_msgs__msg__CAM__fini(&msg);
-            }
+            //     v2x_msgs__msg__CAM__fini(&msg);
+            // }
         }
 
+        std::cout <<  (fini.nanoseconds() - init.nanoseconds())*1e-9 << std::endl;
+
         v2x_msgs__msg__CAM__fini(&buffer_cam_c);
+        RCLCPP_INFO(this->get_logger(), "[UNIX-Socket Subscriber] Messages received: %d", i);
 
         return;
     }

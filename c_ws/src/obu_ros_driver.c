@@ -24,6 +24,7 @@
  */
 
 #include "obu_driver_ros.h"
+#include <time.h>
 
 int main()
 {
@@ -65,13 +66,18 @@ int main()
         exit(EXIT_FAILURE);
     }
 
+    struct timespec remaining, request;
+
+    request.tv_sec = 0;
+    request.tv_nsec = 9e5; // 0.9 ms
+
     // Publishing
-    for (int i = 0; i < 255; i++)
+    for (int i = 0; i < 1000; i++)
     {
         cam_to_ros.header.message_id = i;
         publish_socket(publisher_socket, &cam_to_ros, sizeof(cam_to_ros));
 
-        sleep(2);
+        nanosleep(&request, &remaining);
     }
 
     v2x_msgs__msg__CAM__fini(&cam_to_ros);
