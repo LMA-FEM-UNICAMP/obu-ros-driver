@@ -34,13 +34,13 @@ UNIX-Socket client
 #include "unix_socket_pub_sub.h"
 
 /**
- * @brief 
- * 
- * @param socket_fd 
- * @param socket_addr 
- * @return int 
+ * @brief
+ *
+ * @param socket_fd
+ * @param socket_addr
+ * @return int
  */
-int configure_subscriber_socket(int *socket_fd, sockaddr_un_t *socket_addr)
+int configure_subscriber_socket(int *socket_fd, sockaddr_un_t *socket_addr, char *socket_path)
 {
     // Create socket
     if ((*socket_fd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1)
@@ -56,7 +56,7 @@ int configure_subscriber_socket(int *socket_fd, sockaddr_un_t *socket_addr)
     socket_addr->sun_family = AF_UNIX;
 
     // Setting socket address path
-    strncpy(socket_addr->sun_path, SOCKET_PATH_SUB, strlen(SOCKET_PATH_SUB));
+    strncpy(socket_addr->sun_path, socket_path, strlen(socket_path));
 
     int i = 0;
 
@@ -80,11 +80,11 @@ int configure_subscriber_socket(int *socket_fd, sockaddr_un_t *socket_addr)
 
 /**
  * @brief Defining thread
- * 
- * @param arg 
- * @return void* 
+ *
+ * @param arg
+ * @return void*
  */
-void *subscriber_thread(void *arg)
+void *subscriber_CAM_thread(void *arg)
 {
     subscriber_args_t *args = (subscriber_args_t *)arg;
     v2x_msgs__msg__CAM buffer;
@@ -101,14 +101,21 @@ void *subscriber_thread(void *arg)
     v2x_msgs__msg__CAM__fini(&buffer);
 }
 
-
 /**
  * @brief Defining callback
- * 
- * @param msg 
+ *
+ * @param msg
  */
-void subscriber_callback(const v2x_msgs__msg__CAM *msg)
+void subscriber_CAM_callback(const v2x_msgs__msg__CAM *msg)
 {
     printf("\nNew message from publisher\n");
     printf("\nMessage ID: %ld\n", msg->header.message_id);
+}
+
+
+void subscriber_fini(int sock_fd_sub, pthread_t subscriber_thread_handler){
+    // Need to wait the thread ends before close the socket.
+    pthread_join(subscriber_thread_handler, NULL);
+
+    close(sock_fd_sub);
 }

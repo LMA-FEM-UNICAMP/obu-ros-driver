@@ -43,9 +43,6 @@
 
 #define N_TRY_CONNECT_PUB 300
 
-#define SOCKET_PATH_PUB "/tmp/socket_obu2ros"
-#define SOCKET_PATH_SUB "/tmp/socket_ros2obu"
-
 typedef struct sockaddr_un sockaddr_un_t;
 
 // Creating typedef for function pointer
@@ -58,9 +55,11 @@ typedef struct
     subscriber_callback_t callback;
 } subscriber_args_t;
 
-int configure_subscriber_socket(int *, sockaddr_un_t *);
-int configure_publisher_socket(int *, int *, sockaddr_un_t *);
+int configure_subscriber_socket(int *, sockaddr_un_t *, char *);
+int configure_publisher_socket(int *, int *, sockaddr_un_t *, char *);
 void publish_socket(int socket_fd, void *msg, size_t size);
+void publisher_fini(int socket_server_fd, int socket_fub_fd, char *socket_path);
+void subscriber_fini(int sock_fd_sub, pthread_t subscriber_thread_handler);
 
-void *subscriber_thread(void *arg);
-void subscriber_callback(const v2x_msgs__msg__CAM *msg);
+void *subscriber_CAM_thread(void *arg);
+void subscriber_CAM_callback(const v2x_msgs__msg__CAM *msg);

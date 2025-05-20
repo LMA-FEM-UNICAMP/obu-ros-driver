@@ -41,7 +41,7 @@ UNIX-Socket server
  * @param socket_addr 
  * @return int 
  */
-int configure_publisher_socket(int *socket_server_fd, int *socket_fub_fd, sockaddr_un_t *socket_addr)
+int configure_publisher_socket(int *socket_server_fd, int *socket_fub_fd, sockaddr_un_t *socket_addr, char *socket_path)
 {
     // Create socket
     if ((*socket_server_fd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1)
@@ -57,10 +57,10 @@ int configure_publisher_socket(int *socket_server_fd, int *socket_fub_fd, sockad
     socket_addr->sun_family = AF_UNIX;
 
     // Setting socket address path
-    strncpy(socket_addr->sun_path, SOCKET_PATH_PUB, strlen(SOCKET_PATH_PUB));
+    strncpy(socket_addr->sun_path, socket_path, strlen(socket_path));
 
     // Remove any socket file before start
-    unlink(SOCKET_PATH_PUB);
+    unlink(socket_path);
 
     // Bind the socket file descriptor with the socket address
     if (bind(*socket_server_fd, (struct sockaddr *)socket_addr, sizeof(*socket_addr)) == -1)
@@ -98,4 +98,18 @@ int configure_publisher_socket(int *socket_server_fd, int *socket_fub_fd, sockad
 void publish_socket(int socket_fd, void *msg, size_t size)
 {
     write(socket_fd, msg, size);
+}
+
+/**
+ * @brief 
+ * 
+ * @param socket_server_fd 
+ * @param socket_fub_fd 
+ * @param socket_path 
+ */
+void publisher_fini(int socket_server_fd, int socket_fub_fd, char *socket_path)
+{
+    close(socket_server_fd);
+    close(socket_fub_fd);
+    unlink(socket_path);
 }
