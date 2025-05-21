@@ -123,5 +123,6 @@ void subscriber_fini(socket_subscriber_t sub)
 
 int subscriber_thread_create(socket_subscriber_t *sub, void *callback)
 {
+    sub->thread_args.sock_fd = sub->sock_fd;
     return pthread_create(&sub->thread_handler, NULL, callback, &sub->thread_args);
 }

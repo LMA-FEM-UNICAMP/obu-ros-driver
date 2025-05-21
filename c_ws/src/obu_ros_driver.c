@@ -54,7 +54,6 @@ int main()
     v2x_msgs__msg__CAM__init(&cam_to_ros);
 
     // Setting thread args
-    CAM_sub.thread_args.sock_fd = CAM_sub.sock_fd; // Socket fd
     CAM_sub.thread_args.callback = subscriber_CAM_callback; // Subscription callback
 
     // Creating and starting thread with args
