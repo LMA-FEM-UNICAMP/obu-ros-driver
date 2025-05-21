@@ -25,24 +25,23 @@
 
 #include "obu_driver_ros.h"
 
+
+
+
 int main()
 {
-    char socket_path_CAM_pub[32] = "/tmp/socket_obu2ros";
-    char socket_path_CAM_sub[32] = "/tmp/socket_ros2obu";
+    socket_subscriber_t CAM_sub;
+    strcpy(CAM_sub.socket_path, "/tmp/socket_ros2obu"); 
 
-    int sock_fd_CAM_sub = 0;
-    sockaddr_un_t sock_addr_CAM_sub;
+    socket_publisher_t CAM_pub;
+    strcpy(CAM_pub.socket_path,"/tmp/socket_obu2ros");
 
-    int server_socket_fd_CAM_pub;
-    int publisher_CAM_socket;
-    sockaddr_un_t sock_addr_CAM_pub;
-
-    if (configure_subscriber_socket(&sock_fd_CAM_sub, &sock_addr_CAM_sub, socket_path_CAM_sub) == -1)
+    if (configure_subscriber_socket(&CAM_sub) == -1)
     {
         return -1;
     }
 
-    if (configure_publisher_socket(&server_socket_fd_CAM_pub, &publisher_CAM_socket, &sock_addr_CAM_pub, socket_path_CAM_pub) == -1)
+    if (configure_publisher_socket(&CAM_pub) == -1)
     {
         return -1;
     }
@@ -54,14 +53,12 @@ int main()
     memset(&cam_to_ros, 0, sizeof(cam_to_ros));
     v2x_msgs__msg__CAM__init(&cam_to_ros);
 
-    // Creating thread handler
-    pthread_t subscriber__CAM_thread_handler;
-
-    // Creating thread args
-    subscriber_args_t subscriber_CAM_thread_args = {.sock_fd = sock_fd_CAM_sub, .callback = subscriber_CAM_callback};
+    // Setting thread args
+    CAM_sub.thread_args.sock_fd = CAM_sub.sock_fd; // Socket fd
+    CAM_sub.thread_args.callback = subscriber_CAM_callback; // Subscription callback
 
     // Creating and starting thread with args
-    if (pthread_create(&subscriber__CAM_thread_handler, NULL, subscriber_CAM_thread, &subscriber_CAM_thread_args) != 0)
+    if (subscriber_thread_create(&CAM_sub, subscriber_CAM_thread) != 0)
     {
         perror("pthread_create");
         exit(EXIT_FAILURE);
@@ -71,15 +68,15 @@ int main()
     for (int i = 0; i < 255; i++)
     {
         cam_to_ros.header.message_id = i;
-        publish_socket(publisher_CAM_socket, &cam_to_ros, sizeof(cam_to_ros));
+        publish_socket(CAM_pub, &cam_to_ros, sizeof(cam_to_ros));
 
         sleep(2);
     }
 
     v2x_msgs__msg__CAM__fini(&cam_to_ros);
 
-    publisher_fini(sock_fd_CAM_sub, publisher_CAM_socket, socket_path_CAM_pub);
-    subscriber_fini(sock_fd_CAM_sub, subscriber__CAM_thread_handler);
+    publisher_fini(CAM_pub);
+    subscriber_fini(CAM_sub);
 
     return 0;
 }

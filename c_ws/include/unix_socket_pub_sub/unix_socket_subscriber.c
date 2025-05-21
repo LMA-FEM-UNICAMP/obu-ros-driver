@@ -40,28 +40,30 @@ UNIX-Socket client
  * @param socket_addr
  * @return int
  */
-int configure_subscriber_socket(int *socket_fd, sockaddr_un_t *socket_addr, char *socket_path)
+int configure_subscriber_socket(socket_subscriber_t *sub)
 {
+    sub->sock_fd = 0;
+
     // Create socket
-    if ((*socket_fd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1)
+    if ((sub->sock_fd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1)
     {
         perror("Socket creation error");
         return -1;
     }
 
     // Initializing socket structure with zeros
-    memset(socket_addr, 0, sizeof(*socket_addr));
+    memset(&sub->sock_addr, 0, sizeof(sub->sock_addr));
 
     // Selection UNIX domain socket type
-    socket_addr->sun_family = AF_UNIX;
+    sub->sock_addr.sun_family = AF_UNIX;
 
     // Setting socket address path
-    strncpy(socket_addr->sun_path, socket_path, strlen(socket_path));
+    strncpy(sub->sock_addr.sun_path, sub->socket_path, strlen(sub->socket_path));
 
     int i = 0;
 
     // Connect to the socket server (publisher)
-    while (connect(*socket_fd, (struct sockaddr *)socket_addr, sizeof(*socket_addr)) == -1)
+    while (connect(sub->sock_fd, (struct sockaddr *)&sub->sock_addr, sizeof(sub->sock_addr)) == -1)
     {
         if (i < N_TRY_CONNECT_PUB)
         {
@@ -112,10 +114,14 @@ void subscriber_CAM_callback(const v2x_msgs__msg__CAM *msg)
     printf("\nMessage ID: %ld\n", msg->header.message_id);
 }
 
-
-void subscriber_fini(int sock_fd_sub, pthread_t subscriber_thread_handler){
+void subscriber_fini(socket_subscriber_t sub)
+{
     // Need to wait the thread ends before close the socket.
-    pthread_join(subscriber_thread_handler, NULL);
+    pthread_join(sub.thread_handler, NULL);
+    close(sub.sock_fd);
+}
 
-    close(sock_fd_sub);
+int subscriber_thread_create(socket_subscriber_t *sub, void *callback)
+{
+    return pthread_create(&sub->thread_handler, NULL, callback, &sub->thread_args);
 }

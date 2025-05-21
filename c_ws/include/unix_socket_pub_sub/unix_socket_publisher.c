@@ -1,5 +1,5 @@
 /*
- * unix_socket_publisher.c  
+ * unix_socket_publisher.c
  *
  *  Created on: May, 10 2025
  *
@@ -34,43 +34,46 @@ UNIX-Socket server
 #include "unix_socket_pub_sub.h"
 
 /**
- * @brief 
- * 
- * @param socket_server_fd 
- * @param socket_fub_fd 
- * @param socket_addr 
- * @return int 
+ * @brief
+ *
+ * @param socket_server_fd
+ * @param socket_fub_fd
+ * @param socket_addr
+ * @return int
  */
-int configure_publisher_socket(int *socket_server_fd, int *socket_fub_fd, sockaddr_un_t *socket_addr, char *socket_path)
+int configure_publisher_socket(socket_publisher_t *pub)
 {
+    pub->server_sock_fd = 0;
+    pub->sock_fd = 0;
+
     // Create socket
-    if ((*socket_server_fd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1)
+    if ((pub->server_sock_fd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1)
     {
         perror("socket failed");
         exit(EXIT_FAILURE);
     }
-
+    // TODO stop here
     // Initializing socket structure with zeros
-    memset(socket_addr, 0, sizeof(*socket_addr));
+    memset(&pub->sock_addr, 0, sizeof(pub->sock_addr));
 
     // Selection UNIX domain socket type
-    socket_addr->sun_family = AF_UNIX;
+    pub->sock_addr.sun_family = AF_UNIX;
 
     // Setting socket address path
-    strncpy(socket_addr->sun_path, socket_path, strlen(socket_path));
+    strncpy(pub->sock_addr.sun_path, pub->socket_path, strlen(pub->socket_path));
 
     // Remove any socket file before start
-    unlink(socket_path);
+    unlink(pub->socket_path);
 
     // Bind the socket file descriptor with the socket address
-    if (bind(*socket_server_fd, (struct sockaddr *)socket_addr, sizeof(*socket_addr)) == -1)
+    if (bind(pub->server_sock_fd, (struct sockaddr *)&pub->sock_addr, sizeof(pub->sock_addr)) == -1)
     {
         perror("bind failed");
         exit(EXIT_FAILURE);
     }
 
     // Listen for a connection
-    if (listen(*socket_server_fd, 1) == -1)
+    if (listen(pub->server_sock_fd, 1) == -1)
     {
         perror("listen failed");
         exit(EXIT_FAILURE);
@@ -78,7 +81,7 @@ int configure_publisher_socket(int *socket_server_fd, int *socket_fub_fd, sockad
 
     // Waiting subscriber connection
     printf("[Publisher] Waiting for subscriber to connect...\n");
-    if ((*socket_fub_fd = accept(*socket_server_fd, NULL, NULL)) == -1)
+    if ((pub->sock_fd = accept(pub->server_sock_fd, NULL, NULL)) == -1)
     {
         perror("accept failed");
         exit(EXIT_FAILURE);
@@ -89,27 +92,27 @@ int configure_publisher_socket(int *socket_server_fd, int *socket_fub_fd, sockad
 }
 
 /**
- * @brief 
- * 
- * @param socket_fd 
- * @param msg 
- * @param size 
+ * @brief
+ *
+ * @param socket_fd
+ * @param msg
+ * @param size
  */
-void publish_socket(int socket_fd, void *msg, size_t size)
+void publish_socket(socket_publisher_t pub, void *msg, size_t size)
 {
-    write(socket_fd, msg, size);
+    write(pub.sock_fd, msg, size);
 }
 
 /**
- * @brief 
- * 
- * @param socket_server_fd 
- * @param socket_fub_fd 
- * @param socket_path 
+ * @brief
+ *
+ * @param socket_server_fd
+ * @param socket_fub_fd
+ * @param socket_path
  */
-void publisher_fini(int socket_server_fd, int socket_fub_fd, char *socket_path)
+void publisher_fini(socket_publisher_t pub)
 {
-    close(socket_server_fd);
-    close(socket_fub_fd);
-    unlink(socket_path);
+    close(pub.server_sock_fd);
+    close(pub.sock_fd);
+    unlink(pub.socket_path);
 }

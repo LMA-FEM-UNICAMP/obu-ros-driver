@@ -55,11 +55,27 @@ typedef struct
     subscriber_callback_t callback;
 } subscriber_args_t;
 
-int configure_subscriber_socket(int *, sockaddr_un_t *, char *);
-int configure_publisher_socket(int *, int *, sockaddr_un_t *, char *);
-void publish_socket(int socket_fd, void *msg, size_t size);
-void publisher_fini(int socket_server_fd, int socket_fub_fd, char *socket_path);
-void subscriber_fini(int sock_fd_sub, pthread_t subscriber_thread_handler);
+typedef struct socket_subscriber{
+    char socket_path[32];
+    int sock_fd;
+    sockaddr_un_t sock_addr;
+    pthread_t thread_handler;
+    subscriber_args_t thread_args;
+} socket_subscriber_t;
+
+typedef struct socket_publisher{
+    char socket_path[32];
+    int server_sock_fd;
+    int sock_fd;
+    sockaddr_un_t sock_addr;
+} socket_publisher_t;
+
+int configure_subscriber_socket(socket_subscriber_t *);
+int configure_publisher_socket(socket_publisher_t *);
+void publish_socket(socket_publisher_t pub, void *msg, size_t size);
+int subscriber_thread_create(socket_subscriber_t * sub, void * callback);
+void publisher_fini(socket_publisher_t);
+void subscriber_fini(socket_subscriber_t);
 
 void *subscriber_CAM_thread(void *arg);
 void subscriber_CAM_callback(const v2x_msgs__msg__CAM *msg);
