@@ -239,6 +239,6 @@ make
 ./obu_ros_driver
 ```
 
-## References
+# References
 
 [1] ROS2 V2X Library: ROS2 library for ETSI V2X messages. Available at [github.com/virtual-vehicle/v2x_msgs](https://github.com/virtual-vehicle/v2x_msgs).
