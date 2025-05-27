@@ -77,7 +77,7 @@ int main()
         cam_to_ros.header.message_id = i;
         publish_socket(publisher_socket, &cam_to_ros, sizeof(cam_to_ros));
 
-        nanosleep(&request, &remaining);
+        // nanosleep(&request, &remaining);
     }
 
     v2x_msgs__msg__CAM__fini(&cam_to_ros);

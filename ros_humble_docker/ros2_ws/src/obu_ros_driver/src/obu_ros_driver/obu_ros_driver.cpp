@@ -212,10 +212,10 @@ namespace obu_ros_driver
             // }
         }
 
-        std::cout <<  (fini.nanoseconds() - init.nanoseconds())*1e-9 << std::endl;
-
         v2x_msgs__msg__CAM__fini(&buffer_cam_c);
         RCLCPP_INFO(this->get_logger(), "[UNIX-Socket Subscriber] Messages received: %d", i);
+        RCLCPP_INFO(this->get_logger(), "[UNIX-Socket Subscriber] Time elapsed: %lf", (fini.nanoseconds() - init.nanoseconds())*1e-9);
+        RCLCPP_INFO(this->get_logger(), "[UNIX-Socket Subscriber] Messages per second: %lf", 1*1000/((fini.nanoseconds() - init.nanoseconds())*1e-9));
 
         return;
     }
