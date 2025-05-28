@@ -5,6 +5,11 @@ RUN apt update
 # Installing colcon build
 RUN apt install ros-dev-tools -y
 
+# Installing CycloneDDS
+RUN apt-get install ros-humble-rmw-cyclonedds-cpp -y --no-install-recommends 
+
+ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+
 WORKDIR /ros2_ws
 
 COPY ros2_ws/src src/
