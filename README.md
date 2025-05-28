@@ -2,7 +2,7 @@
 
 <div align="center">
 
-[![Linux](https://img.shields.io/badge/os-ubuntu20.04-blue.svg)](https://www.linux.org/) [![ROS2humble](https://img.shields.io/badge/ros2-humble-blue.svg)](https://docs.ros.org/en/humble/index.html) ![Docker](https://img.shields.io/badge/Docker-blue.svg) ![arm64](https://img.shields.io/badge/architecture-arm64-blue.svg)
+[![Linux](https://img.shields.io/badge/os-ubuntu20.04-blue.svg)](https://www.linux.org/) [![ROS2humble](https://img.shields.io/badge/ros2-humble-blue.svg)](https://docs.ros.org/en/humble/index.html) [![CycloneDDS](https://img.shields.io/badge/dds-CycloneDDS-blue.svg)](https://docs.ros.org/en/humble/Installation/RMW-Implementations/DDS-Implementations/Working-with-Eclipse-CycloneDDS.html) ![Docker](https://img.shields.io/badge/Docker-blue.svg) ![arm64](https://img.shields.io/badge/architecture-arm64-blue.svg)
 
 ![objective](docs/figures/obu_ros_driver-objective.png)
 
