@@ -58,7 +58,7 @@ int configure_subscriber_socket(socket_subscriber_t *sub)
     sub->sock_addr.sun_family = AF_UNIX;
 
     // Setting socket address path
-    strncpy(sub->sock_addr.sun_path, sub->socket_path, strlen(sub->socket_path));
+    strcpy(sub->sock_addr.sun_path, sub->socket_path);
 
     int i = 0;
 

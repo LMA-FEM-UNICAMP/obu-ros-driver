@@ -52,7 +52,7 @@ int configure_publisher_socket(socket_publisher_t *pub)
         perror("socket failed");
         exit(EXIT_FAILURE);
     }
-    // TODO stop here
+    
     // Initializing socket structure with zeros
     memset(&pub->sock_addr, 0, sizeof(pub->sock_addr));
 
@@ -60,7 +60,7 @@ int configure_publisher_socket(socket_publisher_t *pub)
     pub->sock_addr.sun_family = AF_UNIX;
 
     // Setting socket address path
-    strncpy(pub->sock_addr.sun_path, pub->socket_path, strlen(pub->socket_path));
+    strcpy(pub->sock_addr.sun_path, pub->socket_path);
 
     // Remove any socket file before start
     unlink(pub->socket_path);

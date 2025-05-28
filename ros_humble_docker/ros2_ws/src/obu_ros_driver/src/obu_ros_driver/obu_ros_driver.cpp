@@ -76,7 +76,7 @@ namespace obu_ros_driver
         socket_addr.sun_family = AF_UNIX;
 
         // Setting socket address path
-        strncpy(socket_addr.sun_path, socket_path, strlen(socket_path));
+        strcpy(socket_addr.sun_path, socket_path);
 
         // Remove any socket file before start
         unlink(socket_path);
@@ -130,7 +130,7 @@ namespace obu_ros_driver
         socket_addr.sun_family = AF_UNIX;
 
         // Setting socket address path
-        strncpy(socket_addr.sun_path, socket_path, strlen(socket_path));
+        strcpy(socket_addr.sun_path, socket_path);
 
         // Calling socket subscriber thread
         socket_sub_thread_handler = std::thread(&ObuRosDriver::socket_sub_thread, this, socket_fd, socket_addr);
@@ -179,7 +179,7 @@ namespace obu_ros_driver
             v2x_msgs::msg::CAM cam_cpp;
             V2xMsgConverter::cam__c_to_cpp(&buffer_cam_c, &cam_cpp);
 
-            RCLCPP_INFO(this->get_logger(), "[UNIX-Socket Subscriber] Message id: %d", cam_cpp.header.message_id);
+            RCLCPP_INFO(this->get_logger(), "[UNIX-Socket Subscriber] Message id: %ld", cam_cpp.header.message_id);
 
             cam_pub_->publish(cam_cpp);
 
@@ -198,6 +198,10 @@ namespace obu_ros_driver
 
         v2x_msgs__msg__CAM__fini(&buffer_cam_c);
 
+        RCLCPP_ERROR(this->get_logger(), "[UNIX-Socket Subscriber] Publisher disconnected. Shutting down...");
+
+        rclcpp::shutdown();
+
         return;
     }
 
@@ -210,7 +214,11 @@ namespace obu_ros_driver
     void ObuRosDriver::publish_socket_pub(v2x_msgs__msg__CAM *msg, int socket_pub_fd)
     {
         RCLCPP_INFO(this->get_logger(), "[UNIX-Socket Publisher] Sending CAM to OBU");
-        write(socket_pub_fd, msg, sizeof(*msg));
+
+        if (write(socket_pub_fd, msg, sizeof(*msg)) < 0)
+        {
+            RCLCPP_WARN(this->get_logger(), "[UNIX-Socket Publisher] Error on sending CAM to OBU");
+        }
     }
 
     /**
